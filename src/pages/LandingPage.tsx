@@ -97,7 +97,7 @@ export default function LandingPage() {
             <Sparkles className="h-6 w-6" />
           </div>
           <span className="font-display font-bold text-xl tracking-tight bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            StudentAI LifeGPS
+            WayfindAI
           </span>
         </div>
         <div className="flex items-center gap-4">
@@ -362,9 +362,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-blue-500" />
-            <span className="font-display font-bold text-sm text-slate-300">StudentAI LifeGPS</span>
+            <span className="font-display font-bold text-sm text-slate-300">WayfindAI</span>
           </div>
-          <p>© 2026 StudentAI LifeGPS. All rights reserved. Created for National Hackathon.</p>
+          <p>© 2026 WayfindAI. All rights reserved. Created for National Hackathon.</p>
         </div>
       </footer>
     </div>

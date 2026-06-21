@@ -49,7 +49,7 @@ export default function Sidebar() {
             <Sparkles className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="font-display font-bold text-lg leading-none bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">LifeGPS</h1>
+            <h1 className="font-display font-bold text-lg leading-none bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">WayfindAI</h1>
             <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Educational OS</span>
           </div>
         </div>

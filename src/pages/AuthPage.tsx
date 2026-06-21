@@ -151,7 +151,7 @@ export default function AuthPage() {
           <div className="bg-gradient-to-tr from-blue-500 to-purple-600 p-2 rounded-2xl text-white shadow-lg shadow-blue-500/20 mb-3">
             <Sparkles className="h-6 w-6" />
           </div>
-          <h2 className="font-display font-bold text-2xl text-white">StudentAI LifeGPS</h2>
+          <h2 className="font-display font-bold text-2xl text-white">WayfindAI</h2>
           <p className="text-xs text-slate-400 mt-1">Unlock your educational operating system</p>
         </div>
 
