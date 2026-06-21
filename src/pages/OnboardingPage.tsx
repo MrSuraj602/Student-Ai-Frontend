@@ -19,43 +19,47 @@ import {
   Brain,
   Rocket,
   Compass,
-  CheckCircle
+  CheckCircle,
+  Coins,
+  Shield,
+  Activity,
+  Flame,
+  User as UserIcon
 } from 'lucide-react'
 import confetti from 'canvas-confetti'
 
 const stepLabels = [
-  'Basic Details',
-  'Target Career',
+  'Academic Profile',
+  'Dream Careers',
   'Skills Selection',
-  'Current Levels',
-  'Availability',
-  'Learning Preferences',
-  'Target Date',
-  'AI Analysis'
+  'Skill Assessment',
+  'Study Availability',
+  'Learning Styles',
+  'Timeline Deadline',
+  'AI Persona Activation'
 ]
 
-const careerOptions = [
-  'AI Engineer',
-  'Data Scientist',
-  'Backend Developer',
-  'Fullstack Engineer',
-  'Cybersecurity Engineer',
-  'Cloud Engineer',
-  'Game Developer',
-  'Researcher',
-  'Startup Founder'
-]
-
-const skillOptions = [
-  'React',
-  'Java',
-  'Spring Boot',
-  'DSA',
-  'AWS',
-  'Python',
-  'TensorFlow',
-  'Docker',
-  'System Design'
+const educationCategories = [
+  'Middle School',
+  '10th Grade',
+  '11th-12th',
+  'Diploma',
+  'BTech',
+  'MBBS',
+  'BDS',
+  'BAMS',
+  'BHMS',
+  'LLB',
+  'BA LLB',
+  'MBA',
+  'CA',
+  'UPSC',
+  'SSC',
+  'Research Scholar',
+  'Working Professional',
+  'Freelancer',
+  'Entrepreneur',
+  'Other'
 ]
 
 const learningStyles = [
@@ -79,11 +83,12 @@ export default function OnboardingPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  
+  // Terminal Loading State
   const [terminalLogs, setTerminalLogs] = useState<string[]>([])
-  const [activeLogIndex, setActiveLogIndex] = useState(-1)
   const [progressPercent, setProgressPercent] = useState(0)
 
-  // Step 1: Basic Details
+  // Step 1: Academic Profile
   const [basicDetails, setBasicDetails] = useState({
     name: '',
     age: '',
@@ -91,12 +96,31 @@ export default function OnboardingPage() {
     education: '',
     semester: ''
   })
+  
+  // Dynamic fields
+  const [board, setBoard] = useState('')
+  const [stream, setStream] = useState('')
+  const [currentClass, setCurrentClass] = useState('')
+  const [branch, setBranch] = useState('')
+  const [semesterVal, setSemesterVal] = useState('')
+  const [yearVal, setYearVal] = useState('')
+  const [medicalTrack, setMedicalTrack] = useState('')
+  const [lawTrack, setLawTrack] = useState('')
+  const [targetExam, setTargetExam] = useState('')
+  const [fieldOfStudy, setFieldOfStudy] = useState('')
+  const [currentRole, setCurrentRole] = useState('')
+  const [experience, setExperience] = useState('')
+  const [otherDescription, setOtherDescription] = useState('')
 
-  // Step 2: Target Career
-  const [selectedGoals, setSelectedGoals] = useState<string[]>([])
+  // Step 2: AI Suggested Careers
+  const [careerSuggestions, setCareerSuggestions] = useState<any[]>([])
+  const [careerLoading, setCareerLoading] = useState(false)
+  const [selectedGoal, setSelectedGoal] = useState('')
   const [customGoal, setCustomGoal] = useState('')
 
   // Step 3: Skills
+  const [suggestedSkills, setSuggestedSkills] = useState<string[]>([])
+  const [skillsLoading, setSkillsLoading] = useState(false)
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [customSkill, setCustomSkill] = useState('')
 
@@ -116,6 +140,10 @@ export default function OnboardingPage() {
   const [deadline, setDeadline] = useState('6 months')
   const [customDeadline, setCustomDeadline] = useState('')
 
+  // Step 8: AI Preview Card Details
+  const [generatedPersona, setGeneratedPersona] = useState<any>(null)
+  const [generatingPersona, setGeneratingPersona] = useState(false)
+
   // Sync skill default values when skills list updates
   useEffect(() => {
     const nextLevels = { ...skillLevels }
@@ -131,7 +159,6 @@ export default function OnboardingPage() {
       }
     })
     setSkillLevels(nextLevels)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSkills])
 
   // Load from local storage if available
@@ -140,11 +167,26 @@ export default function OnboardingPage() {
     if (!stored) return
     try {
       const parsed = JSON.parse(stored)
-      if (parsed.basicDetails) setBasicDetails(parsed.basicDetails)
-      if (parsed.goals) setSelectedGoals(parsed.goals)
-      if (parsed.skills) setSelectedSkills(parsed.skills)
-      if (parsed.skillLevels) setSkillLevels(parsed.skillLevels)
-      if (parsed.availability) setAvailability(parsed.availability)
+      if (parsed.profile) {
+        setBasicDetails(parsed.profile)
+        if (parsed.profile.board) setBoard(parsed.profile.board)
+        if (parsed.profile.stream) setStream(parsed.profile.stream)
+        if (parsed.profile.className) setCurrentClass(parsed.profile.className)
+        if (parsed.profile.branch) setBranch(parsed.profile.branch)
+        if (parsed.profile.semester) setSemesterVal(parsed.profile.semester)
+        if (parsed.profile.year) setYearVal(parsed.profile.year)
+        if (parsed.profile.medicalTrack) setMedicalTrack(parsed.profile.medicalTrack)
+        if (parsed.profile.lawTrack) setLawTrack(parsed.profile.lawTrack)
+        if (parsed.profile.targetExam) setTargetExam(parsed.profile.targetExam)
+        if (parsed.profile.fieldOfStudy) setFieldOfStudy(parsed.profile.fieldOfStudy)
+        if (parsed.profile.currentRole) setCurrentRole(parsed.profile.currentRole)
+        if (parsed.profile.experience) setExperience(parsed.profile.experience)
+      }
+      if (parsed.goals && parsed.goals.length > 0) setSelectedGoal(parsed.goals[0])
+      if (parsed.skills) setSelectedSkills(parsed.skills.map((s: any) => s.skillName))
+      if (parsed.availability) {
+        setAvailability(parsed.availability.map((a: any) => ({ day: a.day, hours: a.availableHours })))
+      }
       if (parsed.learningPreferences) setSelectedStyles(parsed.learningPreferences)
       if (parsed.deadline) {
         if (deadlineOptions.includes(parsed.deadline)) {
@@ -188,6 +230,78 @@ export default function OnboardingPage() {
     setter('')
   }
 
+  const getBackendErrorMessage = (err: any) => {
+    if (err?.response?.data) {
+      if (typeof err.response.data === 'string') return err.response.data
+      return err.response.data.message || err.response.data.error || JSON.stringify(err.response.data)
+    }
+    return err.message || 'Unknown error'
+  }
+
+  const buildAuthHeaders = () => {
+    const token = localStorage.getItem('token')
+    return token ? { Authorization: `Bearer ${token}` } : {}
+  }
+
+  // API Trigger: Recommend Careers
+  const fetchCareerRecommendations = async () => {
+    setCareerLoading(true)
+    setError('')
+    try {
+      const payload = {
+        name: basicDetails.name,
+        age: basicDetails.age,
+        country: basicDetails.country,
+        education: basicDetails.education,
+        semester: semesterVal || basicDetails.semester,
+        board,
+        stream,
+        className: currentClass,
+        branch,
+        year: yearVal,
+        medicalTrack,
+        lawTrack,
+        targetExam,
+        fieldOfStudy,
+        currentRole,
+        experience,
+        otherDescription
+      }
+      const res = await api.post('/api/career/recommend-careers', payload, {
+        headers: buildAuthHeaders()
+      })
+      setCareerSuggestions(res.data.recommendedCareers || [])
+    } catch (err: any) {
+      console.error('Failed fetching career recommendations:', err)
+      const errMsg = getBackendErrorMessage(err)
+      setError(`Unable to fetch career suggestions: ${errMsg}`)
+    } finally {
+      setCareerLoading(false)
+    }
+  }
+
+  // API Trigger: Suggest Skills
+  const fetchSkillSuggestions = async (career: string) => {
+    setSkillsLoading(true)
+    setError('')
+    try {
+      const token = localStorage.getItem('token')
+      const res = await api.get(`/api/career/suggest-skills?career=${encodeURIComponent(career)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const skills = res.data.suggestedSkills || []
+      setSuggestedSkills(skills)
+      // Auto pre-populate selected skills
+      setSelectedSkills(skills)
+    } catch (err: any) {
+      console.error('Failed fetching skill suggestions:', err)
+      // Fallback
+      setSuggestedSkills(['Core Knowledge', 'Practical Labs', 'Revision Exercises'])
+    } finally {
+      setSkillsLoading(false)
+    }
+  }
+
   // Input Validation per step
   const validateStep = (): boolean => {
     setError('')
@@ -197,12 +311,38 @@ export default function OnboardingPage() {
         if (!basicDetails.age.trim() || Number(basicDetails.age) < 10) return failValidation('Please enter a valid age (10+).')
         if (!basicDetails.country.trim()) return failValidation('Country is required.')
         if (!basicDetails.education) return failValidation('Please select your current education stage.')
+        
+        // Stage validations
+        if ((basicDetails.education === '12th Grade' || basicDetails.education === '11th-12th') && (!stream || !board || !currentClass)) {
+          return failValidation('Please fill out Class, Stream, and Board for 11th-12th.')
+        }
+        if (basicDetails.education === 'BTech' && (!branch || !semesterVal)) {
+          return failValidation('Please select your BTech branch and semester.')
+        }
+        if (['MBBS', 'BDS', 'BAMS', 'BHMS'].includes(basicDetails.education) && !yearVal) {
+          return failValidation('Please enter your current year of medical school.')
+        }
+        if (['LLB', 'BA LLB'].includes(basicDetails.education) && !semesterVal) {
+          return failValidation('Please select your current law school semester.')
+        }
+        if (basicDetails.education === 'MBA' && !semesterVal) {
+          return failValidation('Please select your current MBA semester.')
+        }
+        if (['UPSC', 'SSC'].includes(basicDetails.education) && !targetExam) {
+          return failValidation('Please select your target civil service exam.')
+        }
+        if (basicDetails.education === 'Research Scholar' && !fieldOfStudy.trim()) {
+          return failValidation('Field of Study is required for researchers.')
+        }
+        if (['Working Professional', 'Freelancer', 'Entrepreneur'].includes(basicDetails.education) && (!currentRole.trim() || !experience.trim())) {
+          return failValidation('Please specify your current role and years of experience.')
+        }
         return true
       case 1:
-        if (selectedGoals.length === 0) return failValidation('Select at least one career path or enter a custom goal.')
+        if (!selectedGoal && !customGoal.trim()) return failValidation('Select a career path or enter a custom career target.')
         return true
       case 2:
-        if (selectedSkills.length === 0) return failValidation('Please select at least one skill to wishlist.')
+        if (selectedSkills.length === 0) return failValidation('Please select at least one skill to build.')
         return true
       case 3:
         return true
@@ -211,10 +351,10 @@ export default function OnboardingPage() {
         if (totalHours <= 0) return failValidation('Weekly hours must be greater than zero. Setup study blocks.')
         return true
       case 5:
-        if (selectedStyles.length === 0) return failValidation('Please select at least one learning preference.')
+        if (selectedStyles.length === 0) return failValidation('Please select at least one learning style.')
         return true
       case 6:
-        if (deadline === 'Custom' && !customDeadline) return failValidation('Please choose a valid completion date.')
+        if (deadline === 'Custom' && !customDeadline) return failValidation('Please pick a target completion date.')
         return true
       default:
         return true
@@ -226,9 +366,15 @@ export default function OnboardingPage() {
     return false
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (validateStep()) {
-      setStep((curr) => curr + 1)
+      const nextStep = step + 1
+      setStep(nextStep)
+      
+      // Post-step triggers
+      if (nextStep === 1 && careerSuggestions.length === 0) {
+        fetchCareerRecommendations()
+      }
     }
   }
 
@@ -239,17 +385,17 @@ export default function OnboardingPage() {
     }
   }
 
-  // Submit and launch terminal logging pipeline
-  const handleSubmitOnboarding = async () => {
+  // Triggers the orchestrator API endpoint to compile profile state
+  const handleCompileOnboarding = async () => {
     setError('')
-    setLoading(true)
+    setGeneratingPersona(true)
     setTerminalLogs([])
-    setActiveLogIndex(0)
     setProgressPercent(5)
 
+    const finalGoal = selectedGoal || customGoal
+
     const payload = {
-      profile: basicDetails,
-      goals: selectedGoals,
+      goals: [finalGoal],
       skills: selectedSkills.map((skill) => ({
         skillName: skill,
         currentLevel: skillLevels[skill] ?? 'Beginner',
@@ -258,21 +404,42 @@ export default function OnboardingPage() {
       })),
       availability: availability.map((a) => ({ day: a.day, availableHours: a.hours })),
       learningPreferences: selectedStyles,
-      deadline: deadline === 'Custom' ? customDeadline : deadline
+      deadline: deadline === 'Custom' ? customDeadline : deadline,
+      profile: {
+        name: basicDetails.name,
+        age: basicDetails.age,
+        country: basicDetails.country,
+        education: basicDetails.education,
+        semester: semesterVal || basicDetails.semester,
+        board,
+        stream,
+        className: currentClass,
+        branch,
+        year: yearVal,
+        medicalTrack: ['MBBS', 'BDS', 'BAMS', 'BHMS'].includes(basicDetails.education) ? basicDetails.education : medicalTrack,
+        lawTrack: ['LLB', 'BA LLB'].includes(basicDetails.education) ? basicDetails.education : lawTrack,
+        targetExam,
+        fieldOfStudy,
+        currentRole,
+        experience,
+        otherDescription,
+        preferredLearningTime: 'Night',
+        deadlineType: deadline === 'Custom' ? 'Custom' : 'Preset'
+      }
     }
 
-    console.log('[OnboardingPage] Submitting payload:', payload)
+    console.log('[OnboardingPage] Submitting single-orchestration payload:', payload)
 
-    // Setup animated logs sequence
+    // Animated console log simulator
     const logMessages = [
       'Establishing connection with LLama-3.3 Core Daemon...',
-      'Analyzing career goal vectors...',
-      'Mapping core curriculum milestones...',
-      'Synthesizing personalized study schedules...',
-      'Constructing simulator boss battles...',
-      'Assembling interactive recovery checkpoints...',
-      'Synchronizing profile schemas in central DB...',
-      'Configuring StudentAI Educational OS Dashboard...'
+      'Mapping embedded academic profile parameters...',
+      'Initiating single-orchestration AI call...',
+      'Generating Student Identity Persona Card...',
+      'Synthesizing RPG bosses from roadmap milestones...',
+      'Creating calendar task schedule segments...',
+      'Synchronizing profile state inside central MySQL DB...',
+      'Refreshed universal operating system state successfully!'
     ]
 
     let logCounter = 0
@@ -280,81 +447,91 @@ export default function OnboardingPage() {
       if (logCounter < logMessages.length) {
         setTerminalLogs((prev) => [...prev, `[PROCESS] ${logMessages[logCounter]}`])
         logCounter++
-        setProgressPercent(Math.floor((logCounter / logMessages.length) * 95))
+        setProgressPercent(Math.floor((logCounter / logMessages.length) * 98))
       } else {
         clearInterval(logInterval)
       }
-    }, 700)
+    }, 600)
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await api.post(
-        '/api/planner/onboarding',
+      const res = await api.post(
+        '/api/planner/orchestrate-onboarding',
         payload,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: buildAuthHeaders() }
       )
 
-      console.log('[OnboardingPage] Response received:', response)
+      console.log('[OnboardingPage] Orchestration complete:', res.data)
 
-      // Cache locally
-      localStorage.setItem('student_profile', JSON.stringify(payload))
-      localStorage.setItem('student_goals', JSON.stringify(selectedGoals))
-      localStorage.setItem('student_skills', JSON.stringify(selectedSkills))
-      localStorage.setItem('student_availability', JSON.stringify(availability))
-      localStorage.setItem('learning_preferences', JSON.stringify(selectedStyles))
+      // Sleep a bit to ensure smooth logs
+      const elapsed = logCounter * 600
+      const remaining = Math.max(0, 5200 - elapsed)
+      await new Promise((resolve) => setTimeout(resolve, remaining))
 
-      // Wait for animation to finish
-      const timeElapsed = logCounter * 700
-      const remainingTime = Math.max(0, 5800 - timeElapsed)
-      await new Promise((resolve) => setTimeout(resolve, remainingTime))
-
-      // Finish log sequence
-      setTerminalLogs((prev) => [...prev, '[SUCCESS] Student Profile synchronization complete!'])
+      // Finished successfully
+      setTerminalLogs((prev) => [...prev, '[SUCCESS] System profile synchronized successfully. Loading Persona Preview...'])
       setProgressPercent(100)
       await new Promise((resolve) => setTimeout(resolve, 800))
 
-      // Update user context
-      if (user) {
-        setUser({ ...user, activeMission: 'Onboarding completed successfully' })
-      }
-
+      // Now fetch state to populate store and fetch the generated persona card
       await fetchProfileState()
 
-      // Explosive confetti
-      setIsSuccess(true)
-      setLoading(false)
-      confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.6 },
-        colors: ['#06b6d4', '#3b82f6', '#8b5cf6', '#10b981']
+      // Fetch the generated persona details from store/local storage profileState
+      const tokenUpdated = localStorage.getItem('token')
+      const profileStateRes = await api.get('/api/profile/state', {
+        headers: { Authorization: `Bearer ${tokenUpdated}` }
       })
+      
+      const updatedDetails = profileStateRes.data.basicDetails || {}
+      setGeneratedPersona(updatedDetails)
+      setGeneratingPersona(false)
+
     } catch (err: any) {
       clearInterval(logInterval)
-      console.error('[OnboardingPage] Error submitting onboarding:', err)
-      console.error('[OnboardingPage] Server response data:', err.response?.data)
-
-      let detailedError = 'Unable to generate student profile.'
-      if (err.response?.data) {
-        if (typeof err.response.data === 'string') {
-          detailedError = err.response.data
-        } else if (err.response.data.message) {
-          detailedError = err.response.data.message
-        } else {
-          detailedError = JSON.stringify(err.response.data)
-        }
-      } else if (err.message) {
-        detailedError = err.message
-      }
-
-      setTerminalLogs((prev) => [
-        ...prev,
-        `[CRITICAL ERROR] Operation aborted: ${detailedError}`
-      ])
-      setError(detailedError)
-      setLoading(false)
-      setStep(7) // return to summary step to review and retry
+      console.error('[OnboardingPage] Orchestrator error:', err)
+      const errMsg = getBackendErrorMessage(err) || 'Orchestration compile error.'
+      setTerminalLogs((prev) => [...prev, `[CRITICAL ERROR] Compiler aborted: ${errMsg}`])
+      setError(errMsg)
+      setGeneratingPersona(false)
     }
+  }
+
+  const handleFinishOnboarding = () => {
+    // Save cache indicators
+    const finalGoal = selectedGoal || customGoal
+    const cachePayload = {
+      profile: {
+        name: basicDetails.name,
+        age: basicDetails.age,
+        country: basicDetails.country,
+        education: basicDetails.education,
+        board,
+        stream,
+        className: currentClass,
+        branch,
+        semester: semesterVal,
+        year: yearVal,
+        medicalTrack,
+        lawTrack,
+        targetExam,
+        fieldOfStudy,
+        currentRole,
+        experience
+      },
+      goals: [finalGoal],
+      skills: selectedSkills.map((s) => ({ skillName: s })),
+      availability: availability.map((a) => ({ day: a.day, availableHours: a.hours })),
+      learningPreferences: selectedStyles,
+      deadline: deadline === 'Custom' ? customDeadline : deadline
+    }
+    localStorage.setItem('student_profile', JSON.stringify(cachePayload))
+
+    setIsSuccess(true)
+    confetti({
+      particleCount: 160,
+      spread: 90,
+      origin: { y: 0.55 },
+      colors: ['#06b6d4', '#8b5cf6', '#EC4899', '#10b981']
+    })
   }
 
   // Render Wizard Forms
@@ -364,9 +541,9 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Step 1</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Academic Base</span>
               <h2 className="text-3xl font-bold text-white mt-1">Tell us your story</h2>
-              <p className="text-sm text-slate-400 mt-1">We personalize your workspace based on your local context.</p>
+              <p className="text-sm text-slate-400 mt-1">Configure your education track to generate a customized curriculum matrix.</p>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2">
@@ -387,7 +564,6 @@ export default function OnboardingPage() {
                   type="number"
                   placeholder="21"
                   min={10}
-                  max={120}
                   value={basicDetails.age}
                   onChange={(e) => setBasicDetails({ ...basicDetails, age: e.target.value })}
                   className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
@@ -398,44 +574,263 @@ export default function OnboardingPage() {
                 <span className="text-xs font-semibold text-slate-300 font-mono">Country</span>
                 <input
                   type="text"
-                  placeholder="United States"
+                  placeholder="India"
                   value={basicDetails.country}
                   onChange={(e) => setBasicDetails({ ...basicDetails, country: e.target.value })}
                   className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
-                <span className="text-xs font-semibold text-slate-300 font-mono">Stage/Semester</span>
-                <input
-                  type="text"
-                  placeholder="Semester 5, 3rd Year"
-                  value={basicDetails.semester}
-                  onChange={(e) => setBasicDetails({ ...basicDetails, semester: e.target.value })}
-                  className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-                />
-              </label>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-slate-300 font-mono">Education Track</span>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {['10th Grade', '12th Grade', 'BTech / BS', 'Diploma', 'Working Professional'].map((edu) => (
-                  <button
-                    key={edu}
-                    type="button"
-                    onClick={() => setBasicDetails({ ...basicDetails, education: edu })}
-                    className={`p-3 rounded-2xl border text-center text-xs font-medium transition-all ${
-                      basicDetails.education === edu
-                        ? 'border-cyan-400 bg-cyan-500/10 text-cyan-200'
-                        : 'border-white/5 bg-slate-950/60 text-slate-400 hover:border-slate-800'
-                    }`}
-                  >
-                    {edu}
-                  </button>
-                ))}
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-semibold text-slate-300 font-mono">Academic Level / Stage</span>
+                <select
+                  value={basicDetails.education}
+                  onChange={(e) => {
+                    setBasicDetails({ ...basicDetails, education: e.target.value })
+                    // Reset dynamic stage variables
+                    setBoard('')
+                    setStream('')
+                    setCurrentClass('')
+                    setBranch('')
+                    setSemesterVal('')
+                    setYearVal('')
+                    setMedicalTrack('')
+                    setLawTrack('')
+                    setTargetExam('')
+                    setFieldOfStudy('')
+                    setCurrentRole('')
+                    setExperience('')
+                  }}
+                  className="bg-slate-900 border border-white/10 rounded-2xl p-4 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+                >
+                  <option value="">-- Select Stage --</option>
+                  {educationCategories.map((edu) => (
+                    <option key={edu} value={edu}>
+                      {edu}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
+
+            {/* DYNAMIC EXTRA FIELDS CONTAINER */}
+            {basicDetails.education && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-4"
+              >
+                <div className="flex items-center gap-2 mb-2 text-cyan-400">
+                  <GraduationCap className="h-4 w-4" />
+                  <span className="text-xs font-bold font-mono uppercase tracking-wider">Configure Track Details</span>
+                </div>
+
+                {/* 11th - 12th details */}
+                {['11th-12th', '10th Grade', 'Middle School'].includes(basicDetails.education) && (
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Board</span>
+                      <select value={board} onChange={(e) => setBoard(e.target.value)} className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                        <option value="">-- Select Board --</option>
+                        <option value="CBSE">CBSE</option>
+                        <option value="ICSE">ICSE</option>
+                        <option value="State Board">State Board</option>
+                      </select>
+                    </label>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Stream</span>
+                      <select value={stream} onChange={(e) => setStream(e.target.value)} className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                        <option value="">-- Select Stream --</option>
+                        <option value="PCM">PCM (Science)</option>
+                        <option value="PCB">PCB (Science)</option>
+                        <option value="Commerce">Commerce</option>
+                        <option value="Arts">Arts</option>
+                        <option value="Humanities">Humanities</option>
+                      </select>
+                    </label>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Current Class</span>
+                      <select value={currentClass} onChange={(e) => setCurrentClass(e.target.value)} className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                        <option value="">-- Select Class --</option>
+                        <option value="11th">11th</option>
+                        <option value="12th">12th</option>
+                      </select>
+                    </label>
+                  </div>
+                )}
+
+                {/* BTech details */}
+                {basicDetails.education === 'BTech' && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Branch / Domain</span>
+                      <select value={branch} onChange={(e) => setBranch(e.target.value)} className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                        <option value="">-- Select Branch --</option>
+                        <option value="CSE">CSE (Computer Science)</option>
+                        <option value="IT">IT (Information Tech)</option>
+                        <option value="AI">AI / Data Science</option>
+                        <option value="ECE">ECE</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Civil">Civil</option>
+                        <option value="Other">Other Branch</option>
+                      </select>
+                    </label>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Current Semester</span>
+                      <select value={semesterVal} onChange={(e) => setSemesterVal(e.target.value)} className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                        <option value="">-- Select Semester --</option>
+                        {['1', '2', '3', '4', '5', '6', '7', '8'].map((s) => (
+                          <option key={s} value={s}>Semester {s}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                )}
+
+                {/* Medical tracks */}
+                {['MBBS', 'BDS', 'BAMS', 'BHMS'].includes(basicDetails.education) && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Medical Specialisation Target</span>
+                      <div className="p-3 bg-slate-900/50 border border-white/5 rounded-xl text-xs font-semibold text-slate-300">
+                        {basicDetails.education} Course Track
+                      </div>
+                    </div>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Current Year</span>
+                      <select value={yearVal} onChange={(e) => setYearVal(e.target.value)} className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                        <option value="">-- Select Year --</option>
+                        {['1', '2', '3', '4', '5'].map((y) => (
+                          <option key={y} value={y}>Year {y}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                )}
+
+                {/* Law Tracks */}
+                {['LLB', 'BA LLB'].includes(basicDetails.education) && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Law Track Format</span>
+                      <select value={lawTrack} onChange={(e) => setLawTrack(e.target.value)} className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                        <option value="">-- Select Format --</option>
+                        <option value="LLB">3-Year LLB</option>
+                        <option value="BA LLB">5-Year BA LLB</option>
+                        <option value="BBA LLB">5-Year BBA LLB</option>
+                      </select>
+                    </label>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Current Semester</span>
+                      <select value={semesterVal} onChange={(e) => setSemesterVal(e.target.value)} className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                        <option value="">-- Select Semester --</option>
+                        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].map((s) => (
+                          <option key={s} value={s}>Semester {s}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                )}
+
+                {/* MBA Tracks */}
+                {basicDetails.education === 'MBA' && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Management Track</span>
+                      <div className="p-3 bg-slate-900/50 border border-white/5 rounded-xl text-xs font-semibold text-slate-300">
+                        General Business Administration
+                      </div>
+                    </div>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Current Semester</span>
+                      <select value={semesterVal} onChange={(e) => setSemesterVal(e.target.value)} className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                        <option value="">-- Select Semester --</option>
+                        {['1', '2', '3', '4'].map((s) => (
+                          <option key={s} value={s}>Semester {s}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                )}
+
+                {/* Civil service tracks */}
+                {['UPSC', 'SSC'].includes(basicDetails.education) && (
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Target Competitive Exam</span>
+                    <select value={targetExam} onChange={(e) => setTargetExam(e.target.value)} className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                      <option value="">-- Select Exam --</option>
+                      {basicDetails.education === 'UPSC' ? (
+                        <>
+                          <option value="UPSC CSE">UPSC Civil Services Examination (CSE)</option>
+                          <option value="UPSC IFS">UPSC Indian Forest Service (IFS)</option>
+                          <option value="UPSC NDA">UPSC NDA / CDS</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="SSC CGL">SSC Combined Graduate Level (CGL)</option>
+                          <option value="SSC CHSL">SSC Combined Higher Secondary Level (CHSL)</option>
+                          <option value="SSC MTS">SSC MTS</option>
+                        </>
+                      )}
+                    </select>
+                  </label>
+                )}
+
+                {/* Research Scholar */}
+                {basicDetails.education === 'Research Scholar' && (
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Research Field / Speciality</span>
+                    <input
+                      type="text"
+                      placeholder="e.g. Molecular Biology, Quantum Cryptography"
+                      value={fieldOfStudy}
+                      onChange={(e) => setFieldOfStudy(e.target.value)}
+                      className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                    />
+                  </label>
+                )}
+
+                {/* Working Professional / Freelancer / Entrepreneur */}
+                {['Working Professional', 'Freelancer', 'Entrepreneur'].includes(basicDetails.education) && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Current Designation / Role</span>
+                      <input
+                        type="text"
+                        placeholder="e.g. Product Manager, Backend Engineer"
+                        value={currentRole}
+                        onChange={(e) => setCurrentRole(e.target.value)}
+                        className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Professional Experience (Years)</span>
+                      <input
+                        type="text"
+                        placeholder="e.g. 2 years, 6 months"
+                        value={experience}
+                        onChange={(e) => setExperience(e.target.value)}
+                        className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                      />
+                    </label>
+                  </div>
+                )}
+
+                {/* Other Stage */}
+                {basicDetails.education === 'Other' && (
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase font-mono">Describe Your Current Profile</span>
+                    <textarea
+                      placeholder="Describe your current studies, track, or primary targets..."
+                      value={otherDescription}
+                      onChange={(e) => setOtherDescription(e.target.value)}
+                      className="bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white h-20 focus:border-cyan-500 focus:outline-none"
+                    />
+                  </label>
+                )}
+
+              </motion.div>
+            )}
           </div>
         )
 
@@ -443,69 +838,103 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Step 2</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Dream Career</span>
               <h2 className="text-3xl font-bold text-white mt-1">Select your target career</h2>
-              <p className="text-sm text-slate-400 mt-1">What professional nodes do you wish to unlock?</p>
+              <p className="text-sm text-slate-400 mt-1">Here are dynamic career tracks suggested by AI based on your academic profile.</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {careerOptions.map((goal) => (
-                <button
-                  key={goal}
-                  type="button"
-                  onClick={() => toggleValue(goal, selectedGoals, setSelectedGoals)}
-                  className={`p-4 rounded-2xl border text-left text-sm font-semibold transition-all relative overflow-hidden ${
-                    selectedGoals.includes(goal)
-                      ? 'border-cyan-500 bg-cyan-500/15 text-cyan-100 shadow-lg shadow-cyan-500/5'
-                      : 'border-white/5 bg-slate-900/40 text-slate-300 hover:border-white/10'
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <span>{goal}</span>
-                    {selectedGoals.includes(goal) && (
-                      <div className="h-2 w-2 rounded-full bg-cyan-400 shadow-glow" />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
+            {careerLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <div className="h-8 w-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs font-mono text-cyan-400">Interrogating AI Career Matrix...</p>
+              </div>
+            ) : (
+              <div className="grid gap-4 max-h-[320px] overflow-y-auto pr-2">
+                {careerSuggestions.map((item: any) => (
+                  <button
+                    key={item.title}
+                    type="button"
+                    onClick={() => {
+                      setSelectedGoal(item.title)
+                      fetchSkillSuggestions(item.title)
+                    }}
+                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-3 ${
+                      selectedGoal === item.title
+                        ? 'border-cyan-500 bg-cyan-500/10 text-cyan-100 shadow-lg shadow-cyan-500/5'
+                        : 'border-white/5 bg-slate-900/40 text-slate-300 hover:border-white/10'
+                    }`}
+                  >
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-white">{item.title}</span>
+                        <span className="bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] px-2 py-0.5 rounded-full font-mono font-bold">
+                          {item.compatibility}% Compatibility
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 leading-snug">{item.whySuggested}</p>
+                      {item.competitiveExams && item.competitiveExams.length > 0 && (
+                        <div className="flex gap-1.5 flex-wrap pt-1">
+                          {item.competitiveExams.map((ex: string) => (
+                            <span key={ex} className="text-[9px] bg-slate-950 text-slate-400 border border-white/5 px-2 py-0.5 rounded-full uppercase">
+                              Exam: {ex}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-4 text-xs font-mono text-slate-400">
+                      <div>
+                        <span className="text-[9px] block text-slate-500">Salaries</span>
+                        <span className="text-white font-bold">{item.salary || 'Varies'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[9px] block text-slate-500">Duration</span>
+                        <span className="text-white font-bold">{item.yearsNeeded || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="flex gap-3 items-end">
               <label className="flex-1 flex flex-col gap-2">
-                <span className="text-xs font-semibold text-slate-300 font-mono">Add Custom Career Ambition</span>
+                <span className="text-xs font-semibold text-slate-300 font-mono">Custom Career Goal</span>
                 <input
                   type="text"
-                  placeholder="e.g. Embedded AI Specialist"
+                  placeholder="e.g. Cardiologist, IAS Officer, Spring API Developer"
                   value={customGoal}
                   onChange={(e) => setCustomGoal(e.target.value)}
                   className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
-                      addCustomItem(customGoal, setCustomGoal, setSelectedGoals, selectedGoals)
+                      setSelectedGoal(customGoal)
+                      fetchSkillSuggestions(customGoal)
                     }
                   }}
                 />
               </label>
               <button
                 type="button"
-                onClick={() => addCustomItem(customGoal, setCustomGoal, setSelectedGoals, selectedGoals)}
+                onClick={() => {
+                  setSelectedGoal(customGoal)
+                  fetchSkillSuggestions(customGoal)
+                }}
                 className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-4 rounded-2xl text-sm font-bold border border-white/5"
               >
-                Add
+                Set Target
               </button>
             </div>
 
-            {selectedGoals.length > 0 && (
-              <div className="p-4 rounded-2xl bg-slate-950/70 border border-white/5 flex flex-wrap gap-2">
-                {selectedGoals.map((g) => (
-                  <span
-                    key={g}
-                    className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full text-xs font-medium"
-                  >
-                    {g}
-                  </span>
-                ))}
+            {selectedGoal && (
+              <div className="p-4 rounded-2xl bg-slate-950/70 border border-white/5 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-mono uppercase block">Active Goal Selection</span>
+                  <span className="text-sm font-bold text-cyan-300">{selectedGoal}</span>
+                </div>
+                <Sparkles className="h-5 w-5 text-cyan-400" />
               </div>
             )}
           </div>
@@ -515,39 +944,46 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Step 3</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Roadmap Modules</span>
               <h2 className="text-3xl font-bold text-white mt-1">Select key skills</h2>
-              <p className="text-sm text-slate-400 mt-1">Which skills do you want to build on your roadmap?</p>
+              <p className="text-sm text-slate-400 mt-1">Select the core domains suggested by AI for: <span className="text-cyan-300 font-semibold">{selectedGoal}</span></p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {skillOptions.map((skill) => (
-                <button
-                  key={skill}
-                  type="button"
-                  onClick={() => toggleValue(skill, selectedSkills, setSelectedSkills)}
-                  className={`p-4 rounded-2xl border text-left text-sm font-semibold transition-all relative overflow-hidden ${
-                    selectedSkills.includes(skill)
-                      ? 'border-indigo-500 bg-indigo-500/15 text-indigo-100 shadow-lg shadow-indigo-500/5'
-                      : 'border-white/5 bg-slate-900/40 text-slate-300 hover:border-white/10'
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <span>{skill}</span>
-                    {selectedSkills.includes(skill) && (
-                      <div className="h-2 w-2 rounded-full bg-indigo-400 shadow-glow" />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
+            {skillsLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <div className="h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs font-mono text-indigo-400">Compiling Skill Indexes...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {suggestedSkills.map((skill) => (
+                  <button
+                    key={skill}
+                    type="button"
+                    onClick={() => toggleValue(skill, selectedSkills, setSelectedSkills)}
+                    className={`p-4 rounded-2xl border text-left text-sm font-semibold transition-all relative overflow-hidden ${
+                      selectedSkills.includes(skill)
+                        ? 'border-indigo-500 bg-indigo-500/15 text-indigo-100 shadow-lg shadow-indigo-500/5'
+                        : 'border-white/5 bg-slate-900/40 text-slate-300 hover:border-white/10'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="truncate">{skill}</span>
+                      {selectedSkills.includes(skill) && (
+                        <div className="h-2 w-2 rounded-full bg-indigo-400 shadow-glow" />
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="flex gap-3 items-end">
               <label className="flex-1 flex flex-col gap-2">
-                <span className="text-xs font-semibold text-slate-300 font-mono">Add Custom Skill</span>
+                <span className="text-xs font-semibold text-slate-300 font-mono">Custom Skill</span>
                 <input
                   type="text"
-                  placeholder="e.g. Next.js, PyTorch"
+                  placeholder="e.g. Next.js, Organic Chemistry, Constitution Law"
                   value={customSkill}
                   onChange={(e) => setCustomSkill(e.target.value)}
                   className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
@@ -564,7 +1000,7 @@ export default function OnboardingPage() {
                 onClick={() => addCustomItem(customSkill, setCustomSkill, setSelectedSkills, selectedSkills)}
                 className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-4 rounded-2xl text-sm font-bold border border-white/5"
               >
-                Add
+                Add Skill
               </button>
             </div>
 
@@ -587,23 +1023,23 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Step 4</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Competency Rank</span>
               <h2 className="text-3xl font-bold text-white mt-1">Rate your level</h2>
-              <p className="text-sm text-slate-400 mt-1">Your starter milestone is adjusted according to your skill rank.</p>
+              <p className="text-sm text-slate-400 mt-1">Your generated nodes scale complexity based on your initial levels.</p>
             </div>
 
             {selectedSkills.length === 0 ? (
               <div className="p-6 rounded-2xl border border-amber-500/10 bg-amber-500/5 text-amber-300 text-sm flex gap-3">
                 <AlertTriangle className="h-5 w-5 flex-shrink-0" />
-                <p>No skills wishlisted. Go back and select the skills you want to learn.</p>
+                <p>No skills wishlisted. Go back and select some skills.</p>
               </div>
             ) : (
-              <div className="max-h-[380px] overflow-y-auto pr-2 space-y-4">
+              <div className="max-h-[320px] overflow-y-auto pr-2 space-y-4">
                 {selectedSkills.map((skill) => (
                   <div key={skill} className="p-4 rounded-2xl border border-white/5 bg-slate-900/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                       <h4 className="text-md font-bold text-white">{skill}</h4>
-                      <p className="text-xs text-slate-500">Pick current competency rank</p>
+                      <p className="text-xs text-slate-500 font-mono">Choose current proficiency</p>
                     </div>
 
                     <div className="flex gap-2">
@@ -633,9 +1069,9 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Step 5</span>
-              <h2 className="text-3xl font-bold text-white mt-1">Weekly availability</h2>
-              <p className="text-sm text-slate-400 mt-1">How many hours can you commit to learning each day?</p>
+              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Weekly Allocation</span>
+              <h2 className="text-3xl font-bold text-white mt-1">Study availability</h2>
+              <p className="text-sm text-slate-400 mt-1">How many hours can you dedicate to study sessions per day?</p>
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -689,9 +1125,9 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Step 6</span>
-              <h2 className="text-3xl font-bold text-white mt-1">Learning preferences</h2>
-              <p className="text-sm text-slate-400 mt-1">Select media formats you engage with most.</p>
+              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Learning Style</span>
+              <h2 className="text-3xl font-bold text-white mt-1">Preferred study styles</h2>
+              <p className="text-sm text-slate-400 mt-1">Select the formats that help you learn most efficiently.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -722,9 +1158,9 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Step 7</span>
-              <h2 className="text-3xl font-bold text-white mt-1">Target date</h2>
-              <p className="text-sm text-slate-400 mt-1">Choose your target completion timeframe.</p>
+              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Milestone Target</span>
+              <h2 className="text-3xl font-bold text-white mt-1">Timeframe deadline</h2>
+              <p className="text-sm text-slate-400 mt-1">Choose target date guidelines for curriculum completion.</p>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
@@ -756,12 +1192,12 @@ export default function OnboardingPage() {
                   : 'border-white/5 bg-slate-900/40 text-slate-400 hover:border-white/10'
               }`}
             >
-              Pick Specific Calendar Date
+              Select Custom Target Date
             </button>
 
             {deadline === 'Custom' && (
               <label className="flex flex-col gap-2">
-                <span className="text-xs font-semibold text-slate-300 font-mono">Target Date</span>
+                <span className="text-xs font-semibold text-slate-300 font-mono">Target Date Selection</span>
                 <input
                   type="date"
                   value={customDeadline}
@@ -774,53 +1210,124 @@ export default function OnboardingPage() {
         )
 
       case 7:
+        // Synthesis Phase
         return (
           <div className="space-y-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Step 8</span>
-              <h2 className="text-3xl font-bold text-white mt-1">Synthesize Student Profile</h2>
-              <p className="text-sm text-slate-400 mt-1">Double check your configuration matrix before launching AI OS compiler.</p>
+              <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Synthesis Terminal</span>
+              <h2 className="text-3xl font-bold text-white mt-1">Compile AI educational OS</h2>
+              <p className="text-sm text-slate-400 mt-1">Review parameters and initialize the Groq Neural Orchestration engine.</p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 max-h-[350px] overflow-y-auto pr-2">
-              <div className="p-4 rounded-2xl bg-slate-900/20 border border-white/5 space-y-1">
-                <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">Account Context</span>
-                <p className="text-sm font-medium text-white">{basicDetails.name}</p>
-                <p className="text-xs text-slate-400">
-                  {basicDetails.age} y/o • {basicDetails.country} • {basicDetails.education} ({basicDetails.semester})
-                </p>
+            {!generatedPersona ? (
+              <div className="p-6 rounded-3xl bg-slate-950/70 border border-white/10 flex flex-col items-center justify-center text-center gap-6">
+                <div className="h-16 w-16 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center">
+                  <Brain className="h-8 w-8 text-cyan-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">System Synthesis Required</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mt-1">Click the compilation button below to generate your Student Identity card, adaptive roadmap nodes, recovery setups, and daily study calendar.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCompileOnboarding}
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold px-8 py-3.5 rounded-2xl text-sm shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span>Start AI OS Compilation</span>
+                </button>
               </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Generated Student Persona Card */}
+                <div className="glass p-6 rounded-3xl relative overflow-hidden border border-cyan-500/20 shadow-lg shadow-cyan-500/5 flex flex-col justify-between min-h-[300px]">
+                  <div className="scanline" />
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full font-mono font-bold">
+                        Arc: {generatedPersona.currentArc || 'Syllabus Mastery'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">POWER LEVEL: {generatedPersona.powerLevel || 70}</span>
+                    </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900/20 border border-white/5 space-y-1">
-                <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">Target Career</span>
-                <p className="text-sm font-medium text-white">{selectedGoals.join(', ')}</p>
-              </div>
+                    <div className="flex gap-3 items-center">
+                      <div className="h-12 w-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-500 flex items-center justify-center text-white font-black text-lg">
+                        {generatedPersona.username?.charAt(0).toUpperCase() || 'S'}
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-white tracking-wide">{generatedPersona.identityTitle || 'The Silent Strategist'}</h3>
+                        <p className="text-xs text-slate-500">Category: {generatedPersona.educationCategory}</p>
+                      </div>
+                    </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900/20 border border-white/5 space-y-2 col-span-2">
-                <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">Selected Skills & Levels</span>
-                <div className="flex flex-wrap gap-2">
-                  {selectedSkills.map((s) => (
-                    <span key={s} className="px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-xs text-cyan-300">
-                      {s} ({skillLevels[s] ?? 'Beginner'})
-                    </span>
-                  ))}
+                    <div className="p-3 bg-white/5 border border-white/5 rounded-xl text-xs leading-relaxed text-slate-300">
+                      {generatedPersona.personaSummary || 'Your adaptive path has been initialized and compiled.'}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400">
+                      <div>
+                        <span className="block text-slate-500">QUEST</span>
+                        <span className="text-slate-200 truncate block font-bold">{generatedPersona.currentQuest}</span>
+                      </div>
+                      <div>
+                        <span className="block text-slate-500">WEAKNESS</span>
+                        <span className="text-slate-200 truncate block font-bold">{generatedPersona.weakness}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-white/5 pt-3 mt-4 flex items-center gap-1.5">
+                    <UserIcon className="h-3 w-3 text-cyan-400" />
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-mono">Traits: {generatedPersona.traits}</span>
+                  </div>
+                </div>
+
+                {/* AI Analysis Metrics */}
+                <div className="space-y-4">
+                  <div className="p-5 rounded-3xl bg-slate-900/40 border border-white/5 space-y-4">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono flex items-center gap-2">
+                      <Activity className="h-4 w-4 text-purple-400" />
+                      AI Diagnostics Assessment
+                    </h4>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="p-3 bg-slate-950/60 rounded-2xl border border-white/5 text-center">
+                        <span className="text-[9px] text-slate-500 uppercase block font-mono">Success Prob</span>
+                        <span className="text-lg font-bold text-emerald-400">{generatedPersona.successProbability || '82%'}</span>
+                      </div>
+                      <div className="p-3 bg-slate-950/60 rounded-2xl border border-white/5 text-center">
+                        <span className="text-[9px] text-slate-500 uppercase block font-mono">Burnout Risk</span>
+                        <span className="text-lg font-bold text-amber-400">{generatedPersona.risk || 'Low'}</span>
+                      </div>
+                      <div className="p-3 bg-slate-950/60 rounded-2xl border border-white/5 text-center">
+                        <span className="text-[9px] text-slate-500 uppercase block font-mono">Consistency</span>
+                        <span className="text-lg font-bold text-indigo-400">{generatedPersona.consistency || '80%'}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <span className="text-[10px] text-slate-500 uppercase block font-mono">Recommended Strategy</span>
+                      <p className="text-xs text-slate-300 leading-snug font-medium">{generatedPersona.studyStrategy || 'Pomodoro, Active Recall'}</p>
+                    </div>
+
+                    <div className="space-y-1 border-t border-white/5 pt-3">
+                      <span className="text-[10px] text-slate-500 uppercase block font-mono">AI Advice</span>
+                      <p className="text-xs text-cyan-300 leading-snug italic">"{generatedPersona.aiAdvice || 'Keep daily goals consistent to avoid decay.'}"</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleFinishOnboarding}
+                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold py-4 rounded-2xl shadow-lg shadow-emerald-500/10 transition-all flex items-center justify-center gap-2 text-sm cursor-pointer hover:scale-[1.01]"
+                  >
+                    <span>Activate LifeGPS OS</span>
+                    <Rocket className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
-
-              <div className="p-4 rounded-2xl bg-slate-900/20 border border-white/5 space-y-1">
-                <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">AvailabilityPreset</span>
-                <p className="text-sm font-medium text-white">
-                  {availability.reduce((acc, curr) => acc + curr.hours, 0)} hours per week
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-900/20 border border-white/5 space-y-1">
-                <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">Timeline Deadline</span>
-                <p className="text-sm font-medium text-white">
-                  {deadline === 'Custom' ? customDeadline : deadline}
-                </p>
-              </div>
-            </div>
+            )}
           </div>
         )
 
@@ -856,7 +1363,7 @@ export default function OnboardingPage() {
       <div className="w-full max-w-5xl relative z-10">
         <AnimatePresence mode="wait">
           {/* 1. Loading AI Compiler screen */}
-          {loading && (
+          {generatingPersona && (
             <motion.div
               key="loading-terminal"
               initial={{ opacity: 0, scale: 0.96 }}
@@ -901,7 +1408,6 @@ export default function OnboardingPage() {
                     {log}
                   </div>
                 ))}
-                {/* Active blinking cursor log line */}
                 {terminalLogs.length < 8 && (
                   <div className="text-cyan-500 animate-pulse flex items-center gap-1">
                     <span>[COMPILING MATRIX MODULES]</span>
@@ -917,7 +1423,7 @@ export default function OnboardingPage() {
           )}
 
           {/* 2. Success screen */}
-          {isSuccess && !loading && (
+          {isSuccess && !generatingPersona && (
             <motion.div
               key="success-card"
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -962,13 +1468,13 @@ export default function OnboardingPage() {
           )}
 
           {/* 3. Progressive Wizard Form */}
-          {!loading && !isSuccess && (
+          {!generatingPersona && !isSuccess && (
             <motion.div
               key="wizard"
               initial={{ opacity: 0, scale: 0.99 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.99 }}
-              className="glass rounded-[32px] overflow-hidden grid md:grid-cols-[280px_1fr] border border-white/10 shadow-2xl shadow-black/80"
+              className="glass rounded-[32px] overflow-hidden grid md:grid-cols-[280px_1fr] border border-white/10 shadow-2xl shadow-black/80 w-full"
             >
               {/* Left Steps Sidebar */}
               <div className="bg-slate-950/80 border-r border-white/5 p-6 space-y-8 flex flex-col justify-between hidden md:flex">
@@ -1085,10 +1591,11 @@ export default function OnboardingPage() {
                   ) : (
                     <button
                       type="button"
-                      onClick={handleSubmitOnboarding}
-                      className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold px-7 py-3.5 rounded-2xl text-sm shadow-md shadow-emerald-500/10 hover:scale-[1.01] transition-all cursor-pointer"
+                      disabled={!generatedPersona}
+                      onClick={handleFinishOnboarding}
+                      className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold px-7 py-3.5 rounded-2xl text-sm shadow-md shadow-emerald-500/10 hover:scale-[1.01] transition-all cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
                     >
-                      <span>Generate Student Profile</span>
+                      <span>Finish & Activate</span>
                       <Sparkles className="h-4 w-4" />
                     </button>
                   )}

@@ -13,8 +13,8 @@ import AssessmentPage from './pages/AssessmentPage'
 
 // ProtectedRoute checks if user is logged in, redirecting to /auth if not.
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useUserStore()
-  if (!user) {
+  const { user, token } = useUserStore()
+  if (!user || !token) {
     return <Navigate to="/auth" replace />
   }
   return <>{children}</>

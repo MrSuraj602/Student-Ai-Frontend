@@ -132,6 +132,284 @@ export default function Dashboard() {
     return { day, active: hasSession }
   })
 
+  const renderTrackAdaptiveHUD = () => {
+    const category = basic.educationCategory?.toLowerCase() || '';
+
+    if (category.includes('medical') || category.includes('mbbs') || category.includes('bds') || category.includes('bams') || category.includes('bhms') || category.includes('pcb') || (category.includes('11th-12th') && basic.stream?.toLowerCase() === 'pcb')) {
+      return (
+        <div className="glass p-6 rounded-2xl border border-rose-500/20 space-y-4">
+          <div className="flex items-center justify-between border-b border-white/5 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🩺</span>
+              <h3 className="font-display font-semibold text-white">Medical Speciality Diagnostics Hub</h3>
+            </div>
+            <span className="text-xs font-mono text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full">PCB / Medical Arc</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* NEET countdown */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2 flex flex-col justify-between">
+              <div>
+                <span className="text-[10px] text-slate-500 uppercase font-mono block">Countdown Clock</span>
+                <h4 className="text-sm font-bold text-white mt-1">NEET Entrance Target</h4>
+                <p className="text-xs text-rose-300 font-semibold mt-1">324 Days Remaining</p>
+              </div>
+              <p className="text-[10px] text-slate-500">Targeting AI suggested Medical colleges.</p>
+            </div>
+
+            {/* Biology readiness */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Biology Readiness Rating</span>
+              <div className="flex justify-between items-center text-xs mt-1">
+                <span className="text-slate-300">Anatomy Mastery</span>
+                <span className="font-bold text-emerald-400">82%</span>
+              </div>
+              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                <div className="bg-rose-500 h-full rounded-full" style={{ width: '82%' }} />
+              </div>
+              <div className="flex justify-between items-center text-xs pt-1">
+                <span className="text-slate-300">Physiology Mastery</span>
+                <span className="font-bold text-emerald-400">76%</span>
+              </div>
+              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                <div className="bg-rose-500 h-full rounded-full" style={{ width: '76%' }} />
+              </div>
+            </div>
+
+            {/* Mock tests */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Active Practice Tests</span>
+              <ul className="text-xs text-slate-300 space-y-1.5 pt-1">
+                <li className="flex justify-between items-center bg-white/5 p-1.5 rounded-lg">
+                  <span>Anatomy diagnostic</span>
+                  <span className="text-emerald-400 font-bold font-mono">Passed</span>
+                </li>
+                <li className="flex justify-between items-center bg-white/5 p-1.5 rounded-lg">
+                  <span>Physiology mock</span>
+                  <span className="text-amber-400 font-semibold font-mono">Pending</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (category.includes('btech') || category.includes('engineering') || category.includes('computer') || category.includes('cse') || category.includes('it') || (category.includes('11th-12th') && basic.stream?.toLowerCase() === 'pcm')) {
+      return (
+        <div className="glass p-6 rounded-2xl border border-blue-500/20 space-y-4">
+          <div className="flex items-center justify-between border-b border-white/5 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">💻</span>
+              <h3 className="font-display font-semibold text-white">Engineering Repository HUD</h3>
+            </div>
+            <span className="text-xs font-mono text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">BTech / PCM Arc</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* GitHub */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">GitHub integration</span>
+              <div className="flex items-center gap-2.5 mt-1">
+                <span className="text-slate-300 font-bold text-xs">mr-suraj-dev</span>
+                <span className="text-[9px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full font-bold">CONNECTED</span>
+              </div>
+              <p className="text-[10px] text-slate-400 leading-snug">3 commits pushed to main branch today.</p>
+            </div>
+
+            {/* Projects */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Dynamic Projects Board</span>
+              <div className="flex justify-between items-center text-xs mt-1">
+                <span className="text-slate-300">REST API Router</span>
+                <span className="text-blue-400 font-bold">75% Complete</span>
+              </div>
+              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                <div className="bg-blue-500 h-full rounded-full" style={{ width: '75%' }} />
+              </div>
+            </div>
+
+            {/* Leetcode */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">LeetCode metrics</span>
+              <div className="grid grid-cols-3 gap-1.5 text-center text-xs font-mono pt-1">
+                <div className="bg-white/5 p-1 rounded-lg">
+                  <span className="text-emerald-400 block font-bold">Easy</span>
+                  <span className="text-white">12</span>
+                </div>
+                <div className="bg-white/5 p-1 rounded-lg">
+                  <span className="text-amber-400 block font-bold">Medium</span>
+                  <span className="text-white">8</span>
+                </div>
+                <div className="bg-white/5 p-1 rounded-lg">
+                  <span className="text-red-400 block font-bold">Hard</span>
+                  <span className="text-white">1</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (category.includes('upsc') || category.includes('ssc') || category.includes('civil') || category.includes('ias')) {
+      return (
+        <div className="glass p-6 rounded-2xl border border-purple-500/20 space-y-4">
+          <div className="flex items-center justify-between border-b border-white/5 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🏛️</span>
+              <h3 className="font-display font-semibold text-white">Civil Services Academy Board</h3>
+            </div>
+            <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">UPSC / SSC Arc</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Current affairs */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Current affairs analyst</span>
+              <h4 className="text-xs font-bold text-white mt-1">Daily Editorial Digest</h4>
+              <p className="text-[10px] text-purple-300 font-semibold leading-relaxed">Topic: Indo-Pacific Trade Agreements.</p>
+            </div>
+
+            {/* Essay tracker */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Answer-Writing Essay Tracker</span>
+              <div className="flex justify-between items-center text-xs mt-1">
+                <span className="text-slate-300">GS Paper II essay</span>
+                <span className="text-purple-400 font-bold">Grade: 62%</span>
+              </div>
+              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                <div className="bg-purple-500 h-full rounded-full" style={{ width: '62%' }} />
+              </div>
+            </div>
+
+            {/* Revision meter */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Revision progress</span>
+              <div className="flex justify-between items-center text-xs mt-1">
+                <span className="text-slate-300">Indian Polity</span>
+                <span className="text-emerald-400 font-bold">2/3 Revisions</span>
+              </div>
+              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                <div className="bg-purple-500 h-full rounded-full" style={{ width: '66%' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (category.includes('law') || category.includes('llb') || category.includes('judge')) {
+      return (
+        <div className="glass p-6 rounded-2xl border border-indigo-500/20 space-y-4">
+          <div className="flex items-center justify-between border-b border-white/5 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">⚖️</span>
+              <h3 className="font-display font-semibold text-white">Jurisprudence Codex Board</h3>
+            </div>
+            <span className="text-xs font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full">LLB / Law Arc</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Case studies */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Landmark Case Studies</span>
+              <ul className="text-xs text-slate-300 space-y-2 pt-1">
+                <li className="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5">
+                  <div>
+                    <span className="font-bold text-white block">Kesavananda Bharati v. State of Kerala</span>
+                    <span className="text-[10px] text-slate-500">Basic structure doctrine review</span>
+                  </div>
+                  <span className="text-emerald-400 font-bold">Analyzed</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Constitution mastery */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Constitution Article Mastery</span>
+              <div className="flex justify-between items-center text-xs mt-1">
+                <span className="text-slate-300">Part III (Fundamental Rights)</span>
+                <span className="text-indigo-400 font-bold">90%</span>
+              </div>
+              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                <div className="bg-indigo-500 h-full rounded-full" style={{ width: '90%' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (category.includes('mba') || category.includes('business') || category.includes('management') || category.includes('entrepreneur')) {
+      return (
+        <div className="glass p-6 rounded-2xl border border-amber-500/20 space-y-4">
+          <div className="flex items-center justify-between border-b border-white/5 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">📊</span>
+              <h3 className="font-display font-semibold text-white">Business Simulations Desk</h3>
+            </div>
+            <span className="text-xs font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">MBA / Business Arc</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Business simulations */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Simulations Active</span>
+              <div className="flex justify-between items-center text-xs mt-1">
+                <span className="text-slate-300">SaaS Market Pricing Matrix</span>
+                <span className="text-amber-400 font-bold">85% Complete</span>
+              </div>
+              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                <div className="bg-amber-500 h-full rounded-full" style={{ width: '85%' }} />
+              </div>
+            </div>
+
+            {/* Leadership cases */}
+            <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Executive Case Study Library</span>
+              <p className="text-xs text-slate-300 leading-snug">Active: <span className="text-white font-semibold">Scaling Operations at Netflix (2011)</span></p>
+              <p className="text-[10px] text-slate-500">Requires submitting simulated pricing proposal.</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Default fallback
+    return (
+      <div className="glass p-6 rounded-2xl border border-slate-700/20 space-y-4">
+        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">📝</span>
+            <h3 className="font-display font-semibold text-white">General Academic Progress Matrix</h3>
+          </div>
+          <span className="text-xs font-mono text-slate-400 bg-slate-500/10 px-2 py-0.5 rounded-full">Standard Arc</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2">
+            <span className="text-[10px] text-slate-500 uppercase font-mono block">Syllabus Milestones</span>
+            <div className="flex justify-between items-center text-xs mt-1">
+              <span className="text-slate-300">Basic Syllabus Outline</span>
+              <span className="text-cyan-400 font-bold">100% Complete</span>
+            </div>
+            <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+              <div className="bg-cyan-500 h-full rounded-full" style={{ width: '100%' }} />
+            </div>
+          </div>
+
+          <div className="bg-slate-950/70 border border-white/5 p-4 rounded-xl space-y-2 flex flex-col justify-between">
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase font-mono block">Assessment status</span>
+              <p className="text-xs text-slate-300 leading-snug font-medium">Diagnostic Assessment successfully finished during onboarding sync.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="relative min-h-screen bg-[#030712] text-slate-100 grid-bg font-sans pl-76 pr-6 py-6 overflow-x-hidden">
       <Sidebar />
@@ -202,6 +480,81 @@ export default function Dashboard() {
             </div>
           </div>
         </header>
+
+        {/* DYNAMIC AI IDENTITY PERSONA CARD */}
+        {basic.identityTitle && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass glass-glow p-6 rounded-2xl border border-cyan-500/20 relative overflow-hidden flex flex-col md:flex-row justify-between gap-6"
+          >
+            <div className="scanline" />
+            
+            {/* Left Section: Rank / Identity info */}
+            <div className="flex-1 space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider">
+                  Arc: {basic.currentArc || 'Syllabus Matrix'}
+                </span>
+                <span className="bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider">
+                  Success Prob: {basic.successProbability || '80%'}
+                </span>
+                <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider">
+                  Consistency: {basic.consistency || '85%'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-cyan-500/20 animate-pulse">
+                  🛡️
+                </div>
+                <div>
+                  <h2 className="font-display font-bold text-2xl text-white tracking-wide">{basic.identityTitle}</h2>
+                  <p className="text-xs text-slate-400">
+                    Student Archetype: <span className="text-cyan-300 font-semibold">{basic.personaName}</span>
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-relaxed italic bg-white/5 border border-white/5 p-3 rounded-xl">
+                "{basic.personaSummary}"
+              </p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+                <div>
+                  <span className="block text-slate-500">CURRENT QUEST</span>
+                  <span className="text-slate-200 font-bold block truncate">{basic.currentQuest || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="block text-slate-500">WEAKNESS</span>
+                  <span className="text-red-400 font-bold block truncate">{basic.weakness || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="block text-slate-500">TRAITS</span>
+                  <span className="text-purple-300 font-bold block truncate">{basic.traits || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="block text-slate-500">POWER LEVEL</span>
+                  <span className="text-yellow-400 font-bold block">{basic.powerLevel || 50} / 100</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Section: AI Advice Card */}
+            <div className="md:w-80 p-5 rounded-xl bg-slate-950/60 border border-white/5 flex flex-col justify-between gap-3">
+              <div>
+                <span className="text-[10px] text-cyan-400 font-mono font-bold uppercase tracking-wider block">AI Strategy Coordinator</span>
+                <p className="text-xs text-slate-400 mt-1">Recommended Style: <span className="text-white font-semibold">{basic.studyStrategy}</span></p>
+                <p className="text-xs text-slate-400 font-mono">Burnout Risk: <span className={`font-semibold ${basic.risk === 'High' ? 'text-red-400' : basic.risk === 'Moderate' ? 'text-amber-400' : 'text-emerald-400'}`}>{basic.risk || 'Low'}</span></p>
+              </div>
+
+              <div className="p-3 bg-cyan-500/5 border border-cyan-500/10 rounded-lg">
+                <span className="text-[9px] uppercase font-bold text-cyan-400 block mb-0.5">Advice Guidelines</span>
+                <p className="text-xs text-cyan-200/90 leading-snug italic font-medium">"{basic.aiAdvice}"</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* AUTOMATED RECOVERY ALERTS SECTION */}
         {recovery?.active && (
@@ -316,6 +669,9 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
+
+        {/* Adaptive Track Specific Dashboard Widgets */}
+        {renderTrackAdaptiveHUD()}
 
         {/* Readiness breakdown and timeline history */}
         <div className="glass p-6 rounded-2xl">
