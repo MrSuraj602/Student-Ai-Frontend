@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import axios from 'axios'
+import { api } from '../api'
 import { useUserStore } from '../store/useUserStore'
 import { Sparkles, ListChecks, CalendarDays, Trophy, Compass, Lightbulb, CheckCircle2, Clock, ChevronRight, X, Check, MessageSquare, Send } from 'lucide-react'
 import Sidebar from '../components/ui/Sidebar'
@@ -26,7 +26,7 @@ export default function PlannerPage() {
     setError('')
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get('http://localhost:8080/api/planner', {
+      const response = await api.get('/api/planner', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setPlanner(response.data)
@@ -65,8 +65,8 @@ export default function PlannerPage() {
     setToggleLoading(moduleId)
     try {
       const token = localStorage.getItem('token')
-      await axios.post(
-        `http://localhost:8080/api/planner/task/${taskId}/module/${moduleId}/toggle`,
+      await api.post(
+        `/api/planner/task/${taskId}/module/${moduleId}/toggle`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -83,8 +83,8 @@ export default function PlannerPage() {
     setChatLoading(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get(
-        `http://localhost:8080/api/planner/task/${taskId}/module/${moduleId}/chat`,
+      const response = await api.get(
+        `/api/planner/task/${taskId}/module/${moduleId}/chat`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       setChatMessages(response.data || [])
@@ -110,8 +110,8 @@ export default function PlannerPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.post(
-        `http://localhost:8080/api/planner/task/${selectedTask.id}/module/${activeModule.id}/chat`,
+      const response = await api.post(
+        `/api/planner/task/${selectedTask.id}/module/${activeModule.id}/chat`,
         { message: text },
         { headers: { Authorization: `Bearer ${token}` } }
       )

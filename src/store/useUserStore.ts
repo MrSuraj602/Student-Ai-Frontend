@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import axios from 'axios'
+import { api } from '../api'
 
 export interface UserProfile {
   username: string
@@ -62,7 +62,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     const token = localStorage.getItem('token') || get().token
     if (!token) return
     try {
-      const response = await axios.get('http://localhost:8080/api/profile/state', {
+      const response = await api.get('/api/profile/state', {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = response.data

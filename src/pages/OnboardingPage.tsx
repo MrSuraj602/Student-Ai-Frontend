@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { api } from '../api'
 import { useUserStore } from '../store/useUserStore'
 import {
   ArrowRight,
@@ -20,7 +21,6 @@ import {
   Compass,
   CheckCircle
 } from 'lucide-react'
-import axios from 'axios'
 import confetti from 'canvas-confetti'
 
 const stepLabels = [
@@ -288,8 +288,8 @@ export default function OnboardingPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.post(
-        'http://localhost:8080/api/planner/onboarding',
+      const response = await api.post(
+        '/api/planner/onboarding',
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       )

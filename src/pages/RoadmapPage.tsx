@@ -32,7 +32,7 @@ import {
 } from 'lucide-react'
 import Sidebar from '../components/ui/Sidebar'
 import confetti from 'canvas-confetti'
-import axios from 'axios'
+import { api } from '../api'
 
 // RPG Node Node Data definition
 interface RPGNodeData {
@@ -286,7 +286,7 @@ export default function RoadmapPage() {
     setLoadingElab(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get(`http://localhost:8080/api/roadmap/node/${nodeId}/elaborate`, {
+      const response = await api.get(`/api/roadmap/node/${nodeId}/elaborate`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setElaboration(response.data.elaboration || 'AI was unable to process the node overview.')
@@ -312,7 +312,7 @@ export default function RoadmapPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.post(`http://localhost:8080/api/chat/node/${nodeId}/message`,
+      const response = await api.post(`/api/chat/node/${nodeId}/message`,
         { message: messageText },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -335,8 +335,8 @@ export default function RoadmapPage() {
   const handleCompleteNode = async (nodeId: string, xpReward: number) => {
     try {
       const token = localStorage.getItem('token')
-      await axios.post(
-        `http://localhost:8080/api/roadmap/node/${nodeId}/complete`,
+      await api.post(
+        `/api/roadmap/node/${nodeId}/complete`,
         { xpReward },
         { headers: { Authorization: `Bearer ${token}` } }
       )

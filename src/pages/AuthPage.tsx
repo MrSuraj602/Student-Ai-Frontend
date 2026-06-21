@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '../store/useUserStore'
 import { Sparkles, Mail, Lock, User, ArrowRight, ShieldCheck } from 'lucide-react'
-import axios from 'axios'
+import { api } from '../api'
 
 export default function AuthPage() {
   const navigate = useNavigate()
@@ -25,7 +25,7 @@ export default function AuthPage() {
     setLoading(true)
     try {
       // API call to local spring boot backend. We will define the backend at localhost:8080.
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await api.post('/api/auth/login', {
         email,
         password
       })
@@ -69,7 +69,7 @@ export default function AuthPage() {
     setError('')
     setLoading(true)
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/signup', {
+      const response = await api.post('/api/auth/signup', {
         username,
         email,
         password
@@ -95,7 +95,7 @@ export default function AuthPage() {
     setError('')
     setLoading(true)
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/verify-otp', {
+      const response = await api.post('/api/auth/verify-otp', {
         email,
         otp
       })

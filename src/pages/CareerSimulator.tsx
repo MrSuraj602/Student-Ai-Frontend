@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { api } from '../api'
 import {
   ArrowRight,
   Gauge,
@@ -25,7 +26,6 @@ import {
   ChevronRight,
   History
 } from 'lucide-react'
-import axios from 'axios'
 import Editor from '@monaco-editor/react'
 import { useUserStore } from '../store/useUserStore'
 import Sidebar from '../components/ui/Sidebar'
@@ -151,7 +151,7 @@ export default function CareerSimulator() {
     try {
       setTimeout(() => setLoadingText('AI generating battle...'), 1500)
       const token = localStorage.getItem('token')
-      const response = await axios.get(`http://localhost:8080/api/career/boss/${bossId}/challenge`, {
+      const response = await api.get(`/api/career/boss/${bossId}/challenge`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = response.data as BossChallengePayload
@@ -222,7 +222,7 @@ export default function CareerSimulator() {
           response: response
         }))
       }
-      const response = await axios.post(`http://localhost:8080/api/career/boss/${activeBossId}/evaluate`, submission, {
+      const response = await api.post(`/api/career/boss/${activeBossId}/evaluate`, submission, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const result = response.data

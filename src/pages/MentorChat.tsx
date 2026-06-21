@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { MessageSquare, Send, Sparkles, User, BrainCircuit, Lightbulb, Flame, RefreshCw } from 'lucide-react'
 import Sidebar from '../components/ui/Sidebar'
-import axios from 'axios'
+import { api } from '../api'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -56,7 +56,7 @@ export default function MentorChat() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.post('http://localhost:8080/api/chat/message', {
+      const response = await api.post('/api/chat/message', {
         message: userText
       }, {
         headers: { Authorization: `Bearer ${token}` }

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '../store/useUserStore'
 import { BrainCircuit, Sparkles, ChevronLeft, Award, HelpCircle } from 'lucide-react'
-import axios from 'axios'
+import { api } from '../api'
 import confetti from 'canvas-confetti'
 import Sidebar from '../components/ui/Sidebar'
 
@@ -119,7 +119,7 @@ export default function QuizPage() {
         rating: val
       }))
 
-      const response = await axios.post('http://localhost:8080/api/quiz/submit', payload, {
+      const response = await api.post('/api/quiz/submit', payload, {
         headers: { Authorization: `Bearer ${token}` }
       })
       

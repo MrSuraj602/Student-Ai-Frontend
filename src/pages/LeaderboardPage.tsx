@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Trophy, Award, Sparkles, Flame, Star, Target } from 'lucide-react'
 import Sidebar from '../components/ui/Sidebar'
-import axios from 'axios'
+import { api } from '../api'
 
 interface LeaderboardUser {
   username: string
@@ -18,7 +18,7 @@ export default function LeaderboardPage() {
     const fetchLeaderboard = async () => {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:8080/api/achievements/leaderboard', {
+        const response = await api.get('/api/achievements/leaderboard', {
           headers: { Authorization: `Bearer ${token}` }
         })
         setBoardData(response.data)

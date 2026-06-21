@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { api } from '../api'
 import { useUserStore } from '../store/useUserStore'
 import { 
   BrainCircuit, 
@@ -17,7 +18,6 @@ import {
   ArrowRight,
   BookOpen
 } from 'lucide-react'
-import axios from 'axios'
 import confetti from 'canvas-confetti'
 import Sidebar from '../components/ui/Sidebar'
 
@@ -58,7 +58,7 @@ export default function AssessmentPage() {
         setTimeout(() => setLoadingText('AI generating assessment...'), 1500)
 
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:8080/api/assessment/start', {
+        const response = await api.get('/api/assessment/start', {
           headers: { Authorization: `Bearer ${token}` }
         })
         
@@ -152,7 +152,7 @@ export default function AssessmentPage() {
         }))
       }
 
-      const response = await axios.post('http://localhost:8080/api/assessment/submit', submission, {
+      const response = await api.post('/api/assessment/submit', submission, {
         headers: { Authorization: `Bearer ${token}` }
       })
 
