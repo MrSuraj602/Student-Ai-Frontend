@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useUserStore } from '../store/useUserStore'
+import { useNavigate } from 'react-router-dom'
+import { EmptyState } from '../components/common/EmptyState'
 import { 
   ResponsiveContainer, 
   RadarChart, 
@@ -34,11 +36,13 @@ import {
   Coins,
   Activity,
   Milestone,
-  Target
+  Target,
+  Cpu
 } from 'lucide-react'
 import Sidebar from '../components/ui/Sidebar'
 
 export default function Dashboard() {
+  const navigate = useNavigate()
   const { user, profileState, fetchProfileState } = useUserStore()
 
   useEffect(() => {
@@ -51,6 +55,23 @@ export default function Dashboard() {
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-slate-400 font-mono">Booting AI Educational OS...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!profileState.initialized) {
+    return (
+      <div className="relative min-h-screen bg-[#030712] text-slate-100 grid-bg font-sans pl-76 pr-6 py-6 overflow-x-hidden">
+        <Sidebar />
+        <div className="max-w-7xl mx-auto flex flex-col gap-6 justify-center min-h-[80vh]">
+          <EmptyState
+            title="StudentAI OS Not Configured"
+            subtitle="Complete onboarding to activate your ecosystem."
+            buttonText="Start Onboarding"
+            onClick={() => navigate('/onboarding')}
+            icon={Cpu}
+          />
         </div>
       </div>
     )

@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import { MessageSquare, Send, Sparkles, User, BrainCircuit, Lightbulb, Flame, RefreshCw } from 'lucide-react'
 import Sidebar from '../components/ui/Sidebar'
 import { api } from '../api'
+import { useUserStore } from '../store/useUserStore'
+import { EmptyState } from '../components/common/EmptyState'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -17,6 +19,7 @@ const CHIP_PROMPTS = [
 ]
 
 export default function MentorChat() {
+  const { profileState, fetchProfileState } = useUserStore()
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: 'Salutations, explorer. I am your AI Education Counselor. I navigate the life GPS matrices. How can I steer your education tree today?' }
   ])
@@ -24,6 +27,25 @@ export default function MentorChat() {
   const [loading, setLoading] = useState(false)
   const [streamingText, setStreamingText] = useState('')
   const chatEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    fetchProfileState()
+  }, [])
+
+  if (profileState && !profileState.initialized) {
+    return (
+      <div className="relative min-h-screen bg-[#030712] text-slate-100 grid-bg font-sans pl-76 pr-6 py-6 h-screen flex flex-col justify-between overflow-hidden">
+        <Sidebar />
+        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col justify-center items-center min-h-[80vh]">
+          <EmptyState
+            title="AI Counselor Locked"
+            subtitle="Complete onboarding."
+            icon={BrainCircuit}
+          />
+        </div>
+      </div>
+    )
+  }
 
   // Auto scroll to bottom of chat
   useEffect(() => {

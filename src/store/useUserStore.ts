@@ -67,7 +67,8 @@ export const useUserStore = create<UserState>((set, get) => ({
       })
       const data = response.data
       const updatedUser: UserProfile = {
-        ...data.basicDetails,
+        ...(get().user || {}),
+        ...(data.basicDetails || {}),
         strengths: data.strengths || [],
         weaknesses: data.weaknesses || [],
         recommendedDomains: data.recommendedDomains || [],

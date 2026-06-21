@@ -58,16 +58,16 @@ export default function Sidebar() {
         <div className="bg-white/5 rounded-xl p-3 border border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold text-sm text-white">
-              {user.username.charAt(0).toUpperCase()}
+              {(user.username || user.email || 'S').charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-200 truncate max-w-[100px]">{user.username}</p>
-              <p className="text-[9px] text-blue-400 font-medium">Lv. {user.level} {user.level >= 40 ? 'Innovator' : user.level >= 20 ? 'Engineer' : user.level >= 10 ? 'Builder' : 'Explorer'}</p>
+              <p className="text-xs font-semibold text-slate-200 truncate max-w-[100px]">{user.username || user.email || 'Student'}</p>
+              <p className="text-[9px] text-blue-400 font-medium">Lv. {user.level || 1} {(user.level || 1) >= 40 ? 'Innovator' : (user.level || 1) >= 20 ? 'Engineer' : (user.level || 1) >= 10 ? 'Builder' : 'Explorer'}</p>
             </div>
           </div>
           <div className="flex items-center gap-1 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full text-orange-400">
             <Flame className="h-3 w-3 fill-orange-400" />
-            <span className="text-[10px] font-bold">{user.streak}d</span>
+            <span className="text-[10px] font-bold">{user.streak || 0}d</span>
           </div>
         </div>
 

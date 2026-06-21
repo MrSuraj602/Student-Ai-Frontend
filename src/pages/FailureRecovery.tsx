@@ -14,6 +14,7 @@ import {
   HeartHandshake
 } from 'lucide-react'
 import { useUserStore } from '../store/useUserStore'
+import { EmptyState } from '../components/common/EmptyState'
 import Sidebar from '../components/ui/Sidebar'
 
 export default function FailureRecovery() {
@@ -29,6 +30,21 @@ export default function FailureRecovery() {
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-slate-400 font-mono">Synthesizing Recovery Matrix...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (profileState && !profileState.initialized) {
+    return (
+      <div className="relative min-h-screen bg-[#02050d] text-slate-100 grid-bg font-sans pl-76 pr-6 py-6">
+        <Sidebar />
+        <div className="max-w-6xl mx-auto space-y-6 flex flex-col items-center justify-center min-h-[80vh]">
+          <EmptyState
+            title="Recovery Engine Inactive"
+            subtitle="Recovery activates only after study activity is detected."
+            icon={LifeBuoy}
+          />
         </div>
       </div>
     )

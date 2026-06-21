@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import Editor from '@monaco-editor/react'
 import { useUserStore } from '../store/useUserStore'
+import { EmptyState } from '../components/common/EmptyState'
 import Sidebar from '../components/ui/Sidebar'
 import confetti from 'canvas-confetti'
 
@@ -120,6 +121,21 @@ export default function CareerSimulator() {
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-slate-400 font-mono">Syncing Career Simulator Matrix...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!profileState.initialized) {
+    return (
+      <div className="relative min-h-screen bg-[#02050d] text-slate-100 grid-bg font-sans pl-76 pr-6 py-6">
+        <Sidebar />
+        <div className="max-w-7xl mx-auto space-y-6 flex flex-col items-center justify-center min-h-[80vh]">
+          <EmptyState
+            title="AI Readiness Engine Locked"
+            subtitle="Complete onboarding and your first assessment to generate career insights."
+            icon={ShieldAlert}
+          />
         </div>
       </div>
     )

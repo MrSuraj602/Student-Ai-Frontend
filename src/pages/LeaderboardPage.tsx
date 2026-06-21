@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Trophy, Award, Sparkles, Flame, Star, Target } from 'lucide-react'
 import Sidebar from '../components/ui/Sidebar'
 import { api } from '../api'
+import { useUserStore } from '../store/useUserStore'
+import { EmptyState } from '../components/common/EmptyState'
 
 interface LeaderboardUser {
   username: string
@@ -12,7 +14,12 @@ interface LeaderboardUser {
 }
 
 export default function LeaderboardPage() {
+  const { profileState, fetchProfileState } = useUserStore()
   const [boardData, setBoardData] = useState<LeaderboardUser[]>([])
+
+  useEffect(() => {
+    fetchProfileState()
+  }, [])
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -35,6 +42,21 @@ export default function LeaderboardPage() {
     }
     fetchLeaderboard()
   }, [])
+
+  if (profileState && !profileState.initialized) {
+    return (
+      <div className="relative min-h-screen bg-[#030712] text-slate-100 grid-bg font-sans pl-76 pr-6 py-6">
+        <Sidebar />
+        <div className="max-w-5xl mx-auto space-y-6 flex flex-col items-center justify-center min-h-[80vh] w-full">
+          <EmptyState
+            title="No Performance Data Yet"
+            subtitle="Complete onboarding to access rankings."
+            icon={Trophy}
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="relative min-h-screen bg-[#030712] text-slate-100 grid-bg font-sans pl-76 pr-6 py-6">

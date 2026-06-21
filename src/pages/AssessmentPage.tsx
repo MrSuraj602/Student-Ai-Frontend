@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import Sidebar from '../components/ui/Sidebar'
+import { EmptyState } from '../components/common/EmptyState'
 
 interface Question {
   id: string | number
@@ -49,6 +50,27 @@ export default function AssessmentPage() {
 
   // Fetch assessment questions on load
   useEffect(() => {
+    const initPage = async () => {
+      setLoading(true)
+      setLoadingText('Loading Challenge...')
+      setError(null)
+      try {
+        await fetchProfileState()
+      } catch (e) {
+        console.error('Failed fetching profile state', e)
+        setLoading(false)
+      }
+    }
+    initPage()
+  }, [])
+
+  useEffect(() => {
+    if (!profileState) return
+    if (!profileState.initialized) {
+      setLoading(false)
+      return
+    }
+
     const fetchQuestions = async () => {
       setLoading(true)
       setLoadingText('Loading Challenge...')
@@ -80,7 +102,7 @@ export default function AssessmentPage() {
     }
 
     fetchQuestions()
-  }, [])
+  }, [profileState])
 
   // Timer countdown hook
   useEffect(() => {
@@ -97,6 +119,21 @@ export default function AssessmentPage() {
     }, 1000)
     return () => clearInterval(interval)
   }, [timerActive, timeLeft])
+
+  if (profileState && !profileState.initialized) {
+    return (
+      <div className="relative min-h-screen bg-[#030712] text-slate-100 grid-bg font-sans pl-76 pr-6 py-6">
+        <Sidebar />
+        <div className="max-w-5xl mx-auto space-y-6 flex flex-col items-center justify-center min-h-[80vh] w-full">
+          <EmptyState
+            title="Assessment Locked"
+            subtitle="Complete onboarding to unlock cognitive assessments."
+            icon={BrainCircuit}
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (!user) return null
 

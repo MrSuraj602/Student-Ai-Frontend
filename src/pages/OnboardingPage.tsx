@@ -1392,8 +1392,64 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {/* Logger console */}
-              <div className="bg-black/80 rounded-2xl p-5 border border-white/5 h-64 overflow-y-auto font-mono text-xs text-slate-300 space-y-2 shadow-inner">
+              {/* Cyberpunk progress board */}
+              <div className="bg-slate-950/80 rounded-2xl p-6 border border-cyan-500/20 font-mono text-xs text-slate-300 space-y-3 shadow-inner relative">
+                <div className="absolute top-2 right-4 text-[9px] text-cyan-400 font-bold uppercase tracking-widest animate-pulse">
+                  System Compiling...
+                </div>
+                <div className="text-cyan-400 font-bold text-center border-b border-white/5 pb-2 mb-2">
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>
+                  StudentAI OS // Compiling Your Future<br/>
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                </div>
+                <div className="space-y-2 max-w-sm mx-auto">
+                  <div className="flex items-center justify-between">
+                    <span>Academic Analysis</span>
+                    <span className={terminalLogs.length >= 2 ? "text-emerald-400 font-bold" : "text-amber-500 animate-pulse"}>
+                      {terminalLogs.length >= 2 ? "✓ COMPLETE" : "⏳ PROCESSING"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Persona Building</span>
+                    <span className={terminalLogs.length >= 4 ? "text-emerald-400 font-bold" : "text-amber-500 animate-pulse"}>
+                      {terminalLogs.length >= 4 ? "✓ COMPLETE" : "⏳ PENDING"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Roadmap Generation</span>
+                    <span className={terminalLogs.length >= 5 ? "text-emerald-400 font-bold" : "text-amber-500 animate-pulse"}>
+                      {terminalLogs.length >= 5 ? "✓ COMPLETE" : "⏳ PENDING"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Task Scheduling</span>
+                    <span className={terminalLogs.length >= 6 ? "text-emerald-400 font-bold" : "text-amber-500 animate-pulse"}>
+                      {terminalLogs.length >= 6 ? "✓ COMPLETE" : "⏳ PENDING"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>AI Mentor Setup</span>
+                    <span className={terminalLogs.length >= 7 ? "text-emerald-400 font-bold" : "text-amber-500 animate-pulse"}>
+                      {terminalLogs.length >= 7 ? "✓ COMPLETE" : "⏳ PENDING"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Career Boss Creation</span>
+                    <span className={terminalLogs.length >= 8 ? "text-emerald-400 font-bold" : "text-amber-500 animate-pulse"}>
+                      {terminalLogs.length >= 8 ? "✓ COMPLETE" : "⏳ PENDING"}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-cyan-400 text-center border-t border-white/5 pt-2 mt-2">
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>
+                  Estimated time: 10-20 seconds<br/>
+                  Please don't refresh.<br/>
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                </div>
+              </div>
+
+              {/* Logger console (smaller height to balance layout) */}
+              <div className="bg-black/80 rounded-2xl p-4 border border-white/5 h-36 overflow-y-auto font-mono text-[10px] text-slate-400 space-y-1 shadow-inner">
                 {terminalLogs.map((log, index) => (
                   <div
                     key={index}
@@ -1402,16 +1458,16 @@ export default function OnboardingPage() {
                         ? 'text-emerald-400 font-bold'
                         : log.includes('[CRITICAL ERROR]')
                         ? 'text-red-400 font-bold'
-                        : 'text-cyan-300/90'
+                        : 'text-cyan-300/80'
                     }`}
                   >
                     {log}
                   </div>
                 ))}
                 {terminalLogs.length < 8 && (
-                  <div className="text-cyan-500 animate-pulse flex items-center gap-1">
+                  <div className="text-cyan-500/80 animate-pulse flex items-center gap-1">
                     <span>[COMPILING MATRIX MODULES]</span>
-                    <span className="h-3 w-1.5 bg-cyan-400 inline-block animate-ping" />
+                    <span className="h-2 w-1 bg-cyan-400 inline-block animate-ping" />
                   </div>
                 )}
               </div>

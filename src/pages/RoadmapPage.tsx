@@ -14,6 +14,7 @@ import {
 import '@xyflow/react/dist/style.css'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '../store/useUserStore'
+import { EmptyState } from '../components/common/EmptyState'
 import { 
   ShieldAlert, 
   BookOpen, 
@@ -352,6 +353,21 @@ export default function RoadmapPage() {
     } catch (err) {
       console.error('Complete node failed', err)
     }
+  }
+
+  if (profileState && !profileState.initialized) {
+    return (
+      <div className="relative min-h-screen bg-[#02050d] text-slate-100 grid-bg font-sans pl-76 pr-6 py-6 h-screen overflow-hidden">
+        <Sidebar />
+        <div className="max-w-7xl mx-auto space-y-6 flex flex-col items-center justify-center min-h-[80vh]">
+          <EmptyState
+            title="Roadmap Locked"
+            subtitle="Complete onboarding."
+            icon={Lock}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (

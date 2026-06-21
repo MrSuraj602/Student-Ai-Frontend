@@ -2,11 +2,17 @@ import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../api'
 import { useUserStore } from '../store/useUserStore'
+import { EmptyState } from '../components/common/EmptyState'
 import { Sparkles, ListChecks, CalendarDays, Trophy, Compass, Lightbulb, CheckCircle2, Clock, ChevronRight, X, Check, MessageSquare, Send } from 'lucide-react'
 import Sidebar from '../components/ui/Sidebar'
 
 export default function PlannerPage() {
-  const { user, fetchProfileState } = useUserStore()
+  console.log("PlannerPage rendered")
+
+  const user = useUserStore(s => s.user)
+  const profileState = useUserStore(s => s.profileState)
+  const fetchProfileState = useUserStore(s => s.fetchProfileState)
+
   const [planner, setPlanner] = useState<any>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
@@ -16,13 +22,27 @@ export default function PlannerPage() {
   const [activeModule, setActiveModule] = useState<any>(null)
   const [chatMessages, setChatMessages] = useState<any[]>([])
   const [chatLoading, setChatLoading] = useState(false)
-  const [userMessage, setUserMessage] = useState('')
   const [toggleLoading, setToggleLoading] = useState<number | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const fetchingRef = useRef(false)
+  const debounceProfileRef = useRef<any>(null)
+
+  useEffect(() => {
+    console.log("user changed", user)
+  }, [user])
+
+  useEffect(() => {
+    console.log("selectedTask updated")
+  }, [selectedTask])
+
+  useEffect(() => {
+    console.log("activeModule updated")
+  }, [activeModule])
 
   const fetchPlanner = async () => {
     if (!user) return
+    console.log("fetchPlanner called")
     setError('')
     try {
       const token = localStorage.getItem('token')
@@ -37,11 +57,17 @@ export default function PlannerPage() {
           ?.flatMap((day: any) => day.tasks)
           ?.find((t: any) => t.id === selectedTask.id)
         if (updatedTask) {
-          setSelectedTask(updatedTask)
+          const hasTaskChanged = JSON.stringify(updatedTask) !== JSON.stringify(selectedTask)
+          if (hasTaskChanged) {
+            setSelectedTask(updatedTask)
+          }
           if (activeModule) {
             const updatedMod = updatedTask.modules?.find((m: any) => m.id === activeModule.id)
             if (updatedMod) {
-              setActiveModule(updatedMod)
+              const hasModChanged = JSON.stringify(updatedMod) !== JSON.stringify(activeModule)
+              if (hasModChanged) {
+                setActiveModule(updatedMod)
+              }
             }
           }
         }
@@ -52,14 +78,47 @@ export default function PlannerPage() {
     }
   }
 
-  useEffect(() => {
-    const initFetch = async () => {
-      setLoading(true)
-      await fetchPlanner()
-      setLoading(false)
+  const userEmail = user?.email
+
+  const debouncedFetchProfileState = () => {
+    if (debounceProfileRef.current) {
+      clearTimeout(debounceProfileRef.current)
     }
+    debounceProfileRef.current = setTimeout(() => {
+      console.log("fetchProfileState called")
+      fetchProfileState()
+    }, 500)
+  }
+
+  const initFetch = async () => {
+    if (fetchingRef.current) return
+    fetchingRef.current = true
+    setLoading(true)
+    try {
+      console.log("fetchProfileState called")
+      await fetchProfileState()
+      await fetchPlanner()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+      fetchingRef.current = false
+    }
+  }
+
+  useEffect(() => {
+    console.log("Effect triggered")
+    if (!userEmail) return
     initFetch()
-  }, [user])
+  }, [userEmail])
+
+  useEffect(() => {
+    return () => {
+      if (debounceProfileRef.current) {
+        clearTimeout(debounceProfileRef.current)
+      }
+    }
+  }, [])
 
   const handleToggleModule = async (taskId: number, moduleId: number) => {
     setToggleLoading(moduleId)
@@ -71,7 +130,7 @@ export default function PlannerPage() {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       await fetchPlanner()
-      await fetchProfileState()
+      debouncedFetchProfileState()
     } catch (err) {
       console.error('Toggle module failed:', err)
     } finally {
@@ -105,7 +164,6 @@ export default function PlannerPage() {
       createdAt: new Date().toISOString()
     }
     setChatMessages(prev => [...prev, tempUserMsg])
-    setUserMessage('')
     setChatLoading(true)
 
     try {
@@ -124,12 +182,12 @@ export default function PlannerPage() {
   }
 
   useEffect(() => {
-    if (selectedTask && activeModule) {
+    if (selectedTask && activeModule?.id) {
       loadChatHistory(selectedTask.id, activeModule.id)
     } else {
       setChatMessages([])
     }
-  }, [activeModule])
+  }, [activeModule?.id])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -150,6 +208,21 @@ export default function PlannerPage() {
       return firstTask.title
     }
     return 'Rest Day'
+  }
+
+  if (profileState && !profileState.initialized) {
+    return (
+      <div className="relative min-h-screen bg-[#030712] text-slate-100 grid-bg font-sans pl-76 pr-6 py-6">
+        <Sidebar />
+        <div className="max-w-7xl mx-auto space-y-6 flex flex-col items-center justify-center min-h-[80vh]">
+          <EmptyState
+            title="No Study Plan Generated"
+            subtitle="Generate your first AI schedule."
+            icon={CalendarDays}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -647,29 +720,7 @@ export default function PlannerPage() {
                     </div>
 
                     {/* Chat Text Input field */}
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault()
-                        handleSendChatMessage(userMessage)
-                      }}
-                      className="p-3 border-t border-white/10 bg-[#080d16] flex gap-2"
-                    >
-                      <input
-                        type="text"
-                        value={userMessage}
-                        onChange={(e) => setUserMessage(e.target.value)}
-                        disabled={chatLoading}
-                        placeholder="Ask custom question..."
-                        className="flex-1 bg-slate-950 border border-white/5 focus:border-blue-500/50 rounded-xl px-3.5 py-2 text-slate-200 text-sm focus:outline-none placeholder-slate-600 disabled:opacity-50"
-                      />
-                      <button
-                        type="submit"
-                        disabled={chatLoading || !userMessage.trim()}
-                        className="bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 disabled:opacity-50 text-white p-2 rounded-xl transition-all shadow-md shadow-blue-500/10 shrink-0"
-                      >
-                        <Send className="h-4 w-4" />
-                      </button>
-                    </form>
+                    <ChatInput onSendMessage={handleSendChatMessage} disabled={chatLoading} />
                   </div>
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center p-6 text-center text-slate-500">
@@ -686,5 +737,37 @@ export default function PlannerPage() {
         )}
       </AnimatePresence>
     </div>
+  )
+}
+
+function ChatInput({ onSendMessage, disabled }: { onSendMessage: (msg: string) => void; disabled: boolean }) {
+  const [val, setVal] = useState('')
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (val.trim() && !disabled) {
+          onSendMessage(val)
+          setVal('')
+        }
+      }}
+      className="p-3 border-t border-white/10 bg-[#080d16] flex gap-2"
+    >
+      <input
+        type="text"
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        disabled={disabled}
+        placeholder="Ask custom question..."
+        className="flex-1 bg-slate-950 border border-white/5 focus:border-blue-500/50 rounded-xl px-3.5 py-2 text-slate-200 text-sm focus:outline-none placeholder-slate-600 disabled:opacity-50"
+      />
+      <button
+        type="submit"
+        disabled={disabled || !val.trim()}
+        className="bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 disabled:opacity-50 text-white p-2 rounded-xl transition-all shadow-md shadow-blue-500/10 shrink-0"
+      >
+        <Send className="h-4 w-4" />
+      </button>
+    </form>
   )
 }
